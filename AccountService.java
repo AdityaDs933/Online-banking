@@ -1,3 +1,10 @@
+package com.aditya;
+
+import java.sql.SQLException;
+
+public interface AccountService {
+    boolean transfer(String fromType, String fromAccountNumber, String toType, String toAccountNumber, String customerId, float amount) throws SQLException;
+}
 /******************************************************************************
 *	Online Banking System - Account Service Interface for OOP
 *	Date: December, 2025

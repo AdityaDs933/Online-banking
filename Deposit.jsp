@@ -5,34 +5,29 @@
 *******************************************************************************/
 -->
 
-<HTML><HEAD></HEAD>
-<BODY>
-    <FORM NAME="DepositForm" ACTION="/CSCI6810/Deposit.jsp" METHOD ="POST">
-        <INPUT TYPE='hidden' NAME='UserID' VALUE='<%=request.getParameter("UserID")%>'>
-
-        <TABLE cellPadding=3 ALIGN='center'>
-
-            <TR bgcolor='#ECFAEB'>
-                <TD>Deposit From:</TD>
-                <TD>
-                    <select size="1" name="CheckingOrSavings">
-		    	<option selected value="Checking">Checking</option>
-		    	<option value="Savings">Savings</option>    
-  	            </select>
-                </TD>
-            </TR>
-
-            <TR bgcolor='#F1F1FD'>
-                <TD>Amount to Deposit:</TD>
-                <TD>
-                   <INPUT TYPE='text' NAME='AmountField' Value='' SIZE='15'>
-                </TD>
-            </TR>
-          </TABLE><BR>
-<CENTER><INPUT TYPE="SUBMIT" NAME='submitBNTN' VALUE='Deposit'></CENTER><BR>
-</FORM>
-
-</BODY>
-</HTML>
-<SCRIPT LANGUAGE='JavaScript'>
-</SCRIPT>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body>
+    <h3>Deposit</h3>
+    <c:if test="${not empty requestScope.message}">
+        <div><c:out value="${requestScope.message}"/></div>
+    </c:if>
+    <form name="DepositForm" action="/CSCI6810/Deposit" method="post">
+        <input type="hidden" name="_csrf" value="${csrfToken}" />
+        <input type="hidden" name="UserID" value="${sessionScope.Username}" />
+        <label>Deposit From:
+            <select name="CheckingOrSavings">
+                <option value="Checking">Checking</option>
+                <option value="Savings">Savings</option>
+            </select>
+        </label>
+        <br/>
+        <label>Amount: <input name="AmountField" type="text" required></label>
+        <br/>
+        <button type="submit">Deposit</button>
+    </form>
+</body>
+</html>

@@ -21,5 +21,5 @@ public interface TransactionService {
      * @param uname username to search transactions for
      * @return list of transactions
      */
-    java.util.Vector<java.util.Vector<String>> searchTransaction(String uname);
+    java.util.List<java.util.List<String>> searchTransaction(String uname);
 }

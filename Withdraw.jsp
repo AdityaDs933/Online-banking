@@ -5,34 +5,28 @@
 *******************************************************************************/
 -->
 
-<HTML><HEAD></HEAD>
-<BODY>
-    <FORM NAME="WithdrawForm" ACTION="/WithdrawServlet" METHOD ="POST">
-        <INPUT TYPE='hidden' NAME='UserID' VALUE='<%=request.getParameter("UserID")%>'>
-
-        <TABLE cellPadding=3 ALIGN='center'>
-
-            <TR bgcolor='#ECFAEB'>
-                <TD>Withdraw From:</TD>
-                <TD>
-                    <select size="1" name="CheckingOrSavings">
-		    	<option selected value="Checking">Checking</option>
-		    	<option value="Savings">Savings</option>    
-  	            </select>
-                </TD>
-            </TR>
-
-            <TR bgcolor='#F1F1FD'>
-                <TD>Amount to Withdraw:</TD>
-                <TD>
-                   <INPUT TYPE='text' NAME='AmountField' Value='' SIZE='15'>
-                </TD>
-            </TR>
-          </TABLE><BR>
-<CENTER><INPUT TYPE="SUBMIT" NAME='submitBNTN' VALUE='Make Withdrawal'></CENTER><BR>
-</FORM>
-
-</BODY>
-</HTML>
-<SCRIPT LANGUAGE='JavaScript'>
-</SCRIPT>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body>
+    <h3>Withdraw</h3>
+    <c:if test="${not empty requestScope.message}">
+        <div><c:out value="${requestScope.message}"/></div>
+    </c:if>
+    <form name="WithdrawForm" action="/CSCI6810/Withdraw" method="post">
+        <input type="hidden" name="_csrf" value="${csrfToken}" />
+        <input type="hidden" name="UserID" value="${sessionScope.Username}" />
+        <label>Withdraw From:
+            <select name="CheckingOrSavings">
+                <option value="Checking">Checking</option>
+                <option value="Savings">Savings</option>
+            </select>
+        </label>
+        <br/>
+        <label>Amount: <input name="AmountField" type="text" required></label>
+        <br/>
+        <button type="submit">Make Withdrawal</button>
+    </form>
+</body>
+</html>

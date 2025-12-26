@@ -7,6 +7,8 @@ package com.aditya;
 
 import java.sql.*;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Thread-safe connection pool for managing database connections.
@@ -19,6 +21,7 @@ public class ConnectionPool {
     private Set<Connection> usedConnections;
     private String url;
     private Object lock = new Object();
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionPool.class);
 
     private ConnectionPool(String url) {
         this.url = url;
@@ -48,7 +51,7 @@ public class ConnectionPool {
                 Connection conn = DriverManager.getConnection(url);
                 availableConnections.add(conn);
             } catch (SQLException e) {
-                System.err.println("Failed to create connection: " + e.getMessage());
+                logger.error("Failed to create connection: {}", e.getMessage(), e);
             }
         }
     }
@@ -97,7 +100,7 @@ public class ConnectionPool {
             try {
                 conn.close();
             } catch (SQLException e) {
-                System.err.println("Error closing connection: " + e.getMessage());
+                logger.error("Error closing connection: {}", e.getMessage(), e);
             }
         }
         availableConnections.clear();
@@ -106,7 +109,7 @@ public class ConnectionPool {
             try {
                 conn.close();
             } catch (SQLException e) {
-                System.err.println("Error closing connection: " + e.getMessage());
+                logger.error("Error closing connection: {}", e.getMessage(), e);
             }
         }
         usedConnections.clear();

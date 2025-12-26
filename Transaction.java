@@ -1,150 +1,98 @@
-/******************************************************************************
-*	Program Author: Kavita Mishra for CSCI 6810 Java and the Internet	  *
-*	Date: September, 2018													      *
-*******************************************************************************/
 package com.aditya;
 
-import java.lang.*; //including Java packages used by this program
 import java.sql.*;
-import java.util.Random;
 import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.LocalDate;
-import java.util.*;
-import com.aditya.*;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Transaction class implementing TransactionService interface.
- * Uses parameterized queries for security and ArrayList for type-safe collections.
- */
-public class Transaction implements TransactionService
-{   //Instance Variables
+public class Transaction implements TransactionService {
 	private String TransactionNumber, TransactionType, TransactionTime, TransactionDate, FromAccount, ToAccount, CustomerID;
 	private float Amount = -1;
 	private String Startdate, Enddate;
-	private Vector<Vector<String>> TransStore = new Vector<>();
+	private List<List<String>> TransStore = new ArrayList<>();
+	private static final Logger logger = LoggerFactory.getLogger(Transaction.class);
 
-
+	public Transaction() {}
 
 	public Transaction(String AccountType, String Cust_ID, String Amt){
 		ToAccount = AccountType;
 		CustomerID = Cust_ID;
 		Amount = Float.parseFloat(Amt);
-}
+	}
 
-	public Transaction(String ToAcc, String FromAcc, String Cust_ID, String Amt, String Trans_type) { //Constructor One with four parameters
+	public Transaction(String ToAcc, String FromAcc, String Cust_ID, String Amt, String Trans_type) {
 		ToAccount = ToAcc;
 		FromAccount = FromAcc;
 		CustomerID = Cust_ID;
 		TransactionType = Trans_type;
 		Amount = Float.parseFloat(Amt);
 	}
+
 	public Transaction(String SD, String ED){
+		Startdate = SD;
+		Enddate = ED;
+	}
 
-			Startdate = SD;
-			Enddate = ED;
-		}
-
-
+	@Override
 	public String recordTransaction() {
-			     boolean done = true;
-						try {
-						    if (done) {
-						        DBConnection ToDB = new DBConnection(); //Have a connection to the DB
-						        Connection DBConn = ToDB.openConn();
-						        Statement Stmt = DBConn.createStatement();
-						        String SQL_Command;
-						        while(done) {
-									Random rand = new Random();
-									int n = rand.nextInt(9999) + 1000;
-									TransactionNumber = Integer.toString(n);
-						        	SQL_Command = "SELECT TransactionNumber FROM Transactions WHERE TransactionNumber ='"+TransactionNumber+"'"; //SQL query command
-						        	ResultSet Rslt = Stmt.executeQuery(SQL_Command); //Inquire if the username exsits.
-						        	done = Rslt.next();
-								}
-						        if (!done) {
-									LocalTime nowTime = java.time.LocalTime.now();
-									LocalDate nowDate = java.time.LocalDate.now();
-									DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
-									DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-									TransactionTime = nowTime.format(formatterTime);
-									TransactionDate = nowDate.format(formatterDate);
-									//TransactionType = "Deposit";
-								    SQL_Command = "INSERT INTO Transactions(TransactionNumber, TransactionType, TransactionAmount, TransactionTime, TransactionDate, FromAccount, ToAccount, CustomerID)"+
-								                  " VALUES ('"+TransactionNumber+"','"+TransactionType+"','"+Amount+"','"+TransactionTime+"', '"+TransactionDate+"', '"+FromAccount+"', '"+ToAccount+"', '"+CustomerID+"')"; //Save the username, password and Name
-								    Stmt.executeUpdate(SQL_Command);
-							    }
-							    Stmt.close();
-							    ToDB.closeConn();
-							}
-						}
-					    catch(java.sql.SQLException e)
-					    {         done = false;
-								 System.out.println("SQLException: " + e);
-								 while (e != null)
-								 {   System.out.println("SQLState: " + e.getSQLState());
-									 System.out.println("Message: " + e.getMessage());
-									 System.out.println("Vendor: " + e.getErrorCode());
-									 e = e.getNextException();
-									 System.out.println("");
-								 }
-					    }
-					    catch (java.lang.Exception e)
-					    {         done = false;
-								 System.out.println("Exception: " + e);
-								 e.printStackTrace ();
-					    }
-			    return TransactionNumber;
+		DBConnection ToDB = new DBConnection();
+		try (Connection conn = ToDB.openConn()) {
+			TransactionNumber = java.util.UUID.randomUUID().toString();
+			LocalTime nowTime = LocalTime.now();
+			LocalDate nowDate = LocalDate.now();
+			DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
+			DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			TransactionTime = nowTime.format(formatterTime);
+			TransactionDate = nowDate.format(formatterDate);
+			String sql = "INSERT INTO Transactions(TransactionNumber, TransactionType, TransactionAmount, TransactionTime, TransactionDate, FromAccount, ToAccount, CustomerID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			try (PreparedStatement ps = conn.prepareStatement(sql)) {
+				ps.setString(1, TransactionNumber);
+				ps.setString(2, TransactionType);
+				ps.setFloat(3, Amount);
+				ps.setString(4, TransactionTime);
+				ps.setString(5, TransactionDate);
+				ps.setString(6, FromAccount);
+				ps.setString(7, ToAccount);
+				ps.setString(8, CustomerID);
+				ps.executeUpdate();
+			}
+			return TransactionNumber;
+		} catch (SQLException e) {
+			logger.error("Failed to record transaction: {}", e.getMessage(), e);
+			return null;
 		}
-		public Vector<Vector<String>> searchTransaction(String UName){
-				boolean done;
+	}
 
-						try {
-							done = !Startdate.equals("") && !Enddate.equals("");
-					        DBConnection ToDB = new DBConnection(); //Have a connection to the DB
-					        Connection DBConn = ToDB.openConn();
-					        Statement Stmt = DBConn.createStatement();
-					        String SQL_Command = "SELECT * FROM Transactions WHERE TransactionDate BETWEEN '"+Startdate+ "' AND '"+Enddate+ "'"; //SQL query command
-					        ResultSet Rslt = Stmt.executeQuery(SQL_Command);
-					        while (Rslt.next()) {
-								Vector<String> Column_Names = new Vector<>();
-
-									String TransNumber = Rslt.getString("TransactionNumber");
-									String TransAmount = Rslt.getString("TransactionAmount");
-									String TransType = Rslt.getString("TransactionType");
-									String TransTime = Rslt.getString("TransactionTime");
-									String TransDate = Rslt.getString("TransactionDate");
-									String FromAcc = Rslt.getString("FromAccount");
-									String ToAcc = Rslt.getString("ToAccount");
-									Column_Names.add(0, TransNumber);
-									Column_Names.add(1, TransAmount);
-									Column_Names.add(2, TransType);
-									Column_Names.add(3, TransTime);
-									Column_Names.add(4, TransDate);
-									Column_Names.add(5, FromAcc);
-									Column_Names.add(6, ToAcc);
-									TransStore.add(Column_Names);
-							}
-						}
-					    catch(SQLException e)
-					    {
-								 System.out.println("SQLException: " + e);
-								 while (e != null)
-								 {   System.out.println("SQLState: " + e.getSQLState());
-									 System.out.println("Message: " + e.getMessage());
-									 System.out.println("Vendor: " + e.getErrorCode());
-									 e = e.getNextException();
-									 System.out.println("");
-								 }
-					    }
-					    catch (Exception e)
-					    {
-								 System.out.println("Exception: " + e);
-								 e.printStackTrace ();
-					    }
-					    return TransStore;
+	@Override
+	public List<List<String>> searchTransaction(String UName) {
+		TransStore.clear();
+		if (Startdate == null || Enddate == null || Startdate.isEmpty() || Enddate.isEmpty()) return TransStore;
+		DBConnection ToDB = new DBConnection();
+		String sql = "SELECT TransactionNumber, TransactionAmount, TransactionType, TransactionTime, TransactionDate, FromAccount, ToAccount FROM Transactions WHERE CustomerID = ? AND TransactionDate BETWEEN ? AND ?";
+		try (Connection conn = ToDB.openConn(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, UName);
+			ps.setString(2, Startdate);
+			ps.setString(3, Enddate);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					List<String> cols = new ArrayList<>();
+					cols.add(rs.getString("TransactionNumber"));
+					cols.add(rs.getString("TransactionAmount"));
+					cols.add(rs.getString("TransactionType"));
+					cols.add(rs.getString("TransactionTime"));
+					cols.add(rs.getString("TransactionDate"));
+					cols.add(rs.getString("FromAccount"));
+					cols.add(rs.getString("ToAccount"));
+					TransStore.add(cols);
 				}
-
-
+			}
+		} catch (SQLException e) {
+			logger.error("Error searching transactions: {}", e.getMessage(), e);
+		}
+		return TransStore;
+	}
 }

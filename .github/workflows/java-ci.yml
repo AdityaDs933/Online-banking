@@ -1,0 +1,37 @@
+name: Maven CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: mvn -q test
+      working-directory: Online-banking
+      run: mvn -q test
+
+    - name: mvn -q verify
+      working-directory: Online-banking
+      run: mvn -q verify
+
+    - name: Upload JaCoCo report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: jacoco-report
+        path: |
+          Online-banking/target/site/jacoco/**
+          Online-banking/target/jacoco.exec

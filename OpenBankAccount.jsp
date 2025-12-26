@@ -5,10 +5,14 @@
 *******************************************************************************/
 -->
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <HTML><HEAD></HEAD>
 <BODY>
     <FORM NAME="OpenBankAccountForm" ACTION="/CSCI6810/OpenBankAccount.jsp" METHOD ="POST">
-        <INPUT TYPE='hidden' NAME='UserID' VALUE='<%=request.getParameter("UserID")%>'>
+        <INPUT TYPE='hidden' NAME='_csrf' VALUE='${fn:escapeXml(csrfToken)}'>
+        <INPUT TYPE='hidden' NAME='UserID' VALUE='${fn:escapeXml(param.UserID)}'>
 
         <TABLE cellPadding=3 ALIGN='center'>
 

@@ -2,16 +2,10 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.lang.*" %>
 <%@ page import="com.aditya.*;" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%
-	String Username = new String("");
-	Username = String.valueOf(request.getAttribute("Username"));
-	//out.println("Your username is " + Username);
-	
-	String Name = new String("");
-	Name = String.valueOf(request.getAttribute("CustomerName"));
-	//out.println("Your customername is " + Name);
-%>
+<!-- Using session attributes set by LoginServlet; values are escaped via c:out -->
 
 <HTML>
 <HEAD>
@@ -26,12 +20,37 @@
 <TR bgcolor='#ECFAEB'>
 <div id='navigation'>
 <ul>
-<li><A HREF='/CSCI6810/AccountOverview.jsp?UserID=<%=Username%>&CustomerName=<%=Name%>' TARGET='display'>Account Overview</A></li>
-<li><A HREF='/CSCI6810/PreOpenBankAccount.jsp?UserID=<%=Username%>&CustomerName=<%=Name%>' TARGET='display'>Open Bank Account</A></li>
-<li><A HREF='/CSCI6810/PreWithdraw.jsp?UserID=<%=Username%>&CustomerName=<%=Name%>' TARGET='display'>Withdraw</A></li>
-<li><A HREF='/CSCI6810/PreDeposit.jsp?UserID=<%=Username%>&CustomerName=<%=Name%>' TARGET='display'>Deposit</A></li>
-<li><A HREF='/CSCI6810/PreTransfer.jsp?UserID=<%=Username%>&CustomerName=<%=Name%>' TARGET='display'>Transfer</A></li>
-<li><A HREF='/CSCI6810/InquireTransactions.jsp?UserID=<%=Username%>&CustomerName=<%=Name%>' TARGET='display'>Inquire Transaction</A></li>
+	<c:url var="overviewUrl" value="/CSCI6810/AccountOverview">
+		<c:param name="UserID" value="${sessionScope.Username}" />
+		<c:param name="CustomerName" value="${sessionScope.CustomerName}" />
+	</c:url>
+	<c:url var="openUrl" value="/CSCI6810/PreOpenBankAccount.jsp">
+		<c:param name="UserID" value="${sessionScope.Username}" />
+		<c:param name="CustomerName" value="${sessionScope.CustomerName}" />
+	</c:url>
+	<c:url var="withdrawUrl" value="/CSCI6810/Withdraw.jsp">
+		<c:param name="UserID" value="${sessionScope.Username}" />
+		<c:param name="CustomerName" value="${sessionScope.CustomerName}" />
+	</c:url>
+	<c:url var="depositUrl" value="/CSCI6810/Deposit.jsp">
+		<c:param name="UserID" value="${sessionScope.Username}" />
+		<c:param name="CustomerName" value="${sessionScope.CustomerName}" />
+	</c:url>
+	<c:url var="transferUrl" value="/CSCI6810/Transfer.jsp">
+		<c:param name="UserID" value="${sessionScope.Username}" />
+		<c:param name="CustomerName" value="${sessionScope.CustomerName}" />
+	</c:url>
+	<c:url var="inquireUrl" value="/CSCI6810/InquireTransactions">
+		<c:param name="UserID" value="${sessionScope.Username}" />
+		<c:param name="CustomerName" value="${sessionScope.CustomerName}" />
+	</c:url>
+
+<li><a href="${overviewUrl}" target="display">Account Overview</a></li>
+<li><a href="${openUrl}" target="display">Open Bank Account</a></li>
+<li><a href="${withdrawUrl}" target="display">Withdraw</a></li>
+<li><a href="${depositUrl}" target="display">Deposit</a></li>
+<li><a href="${transferUrl}" target="display">Transfer</a></li>
+<li><a href="${inquireUrl}" target="display">Inquire Transaction</a></li>
 <li><A HREF='/CSCI6810/' TARGET='display'>Logout</A></li>
 </ul>
 </div>
@@ -59,4 +78,4 @@ function checkInputs()
 	}
 }
 </SCRIPT>
-</HTML>
+</html>

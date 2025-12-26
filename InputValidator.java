@@ -63,6 +63,23 @@ public class InputValidator {
     }
 
     /**
+     * Escapes characters for safe HTML output to mitigate XSS when reflecting
+     * user-supplied values into pages. This is a simple replacer; for complex
+     * needs, use a templating/escaping library.
+     */
+    public static String escapeHtml(String input) {
+        if (input == null) return "";
+        String out = input;
+        out = out.replaceAll("&", "&amp;");
+        out = out.replaceAll("<", "&lt;");
+        out = out.replaceAll(">", "&gt;");
+        out = out.replaceAll("\"", "&quot;");
+        out = out.replaceAll("'", "&#x27;");
+        out = out.replaceAll("/", "&#x2F;");
+        return out;
+    }
+
+    /**
      * Validates account number format.
      * @param accountNumber the account number to validate
      * @return true if valid

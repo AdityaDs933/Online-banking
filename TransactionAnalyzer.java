@@ -7,6 +7,8 @@ package com.aditya;
 
 import java.sql.*;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Analyzes transaction patterns and provides insights.
@@ -20,6 +22,8 @@ public class TransactionAnalyzer {
         this.customerId = customerId;
         this.dbConnection = new DBConnection();
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(TransactionAnalyzer.class);
 
     /**
      * Get total transactions count for customer.
@@ -39,7 +43,7 @@ public class TransactionAnalyzer {
             pstmt.close();
             dbConnection.closeConn();
         } catch (SQLException e) {
-            System.err.println("Error counting transactions: " + e.getMessage());
+            logger.error("Error counting transactions: {}", e.getMessage(), e);
         }
         return count;
     }
@@ -62,7 +66,7 @@ public class TransactionAnalyzer {
             pstmt.close();
             dbConnection.closeConn();
         } catch (SQLException e) {
-            System.err.println("Error calculating total: " + e.getMessage());
+            logger.error("Error calculating total: {}", e.getMessage(), e);
         }
         return total;
     }
@@ -95,7 +99,7 @@ public class TransactionAnalyzer {
             pstmt.close();
             dbConnection.closeConn();
         } catch (SQLException e) {
-            System.err.println("Error analyzing transactions: " + e.getMessage());
+            logger.error("Error analyzing transactions: {}", e.getMessage(), e);
         }
         return breakdown;
     }

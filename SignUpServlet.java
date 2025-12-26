@@ -6,10 +6,12 @@
 import java.io.*;
 import javax.servlet.*;  //package for GenericServlet
 import javax.servlet.http.*;  //package for HttpServlet
+import javax.servlet.annotation.WebServlet;
 import java.util.*;
 //import Course.Java.ProSample.*;
 import com.aditya.*;
 
+@WebServlet("/SignUpServlet")
 public class SignUpServlet extends HttpServlet {
    private String Username, Password, Re_enterPassword, CustomerName;
    private PrintWriter output;
@@ -52,9 +54,21 @@ public class SignUpServlet extends HttpServlet {
       Re_enterPassword = req.getParameter( "RePasswordField" );
       CustomerName = req.getParameter( "NameField" );
 
+        // server-side validation
+        if (!com.aditya.InputValidator.isValidUsername(Username)) {
+           output.println("Invalid username. Use 3-30 alphanumeric characters or _ -");
+           return;
+        }
+
       Account Acct = new Account(Username, Password, Re_enterPassword, CustomerName);
-      if (Acct.signUp())
-           showSuccess();
+       if (Acct.signUp()) {
+          // Invalidate any existing session to avoid fixation
+          HttpSession oldSession = req.getSession(false);
+          if (oldSession != null) {
+            try { oldSession.invalidate(); } catch (IllegalStateException e) { }
+          }
+          showSuccess();
+       }
       else
            output.println("Account creation failed because of existing username or invalid username. Please try again!");
    }
@@ -71,7 +85,8 @@ public class SignUpServlet extends HttpServlet {
 					Buf.append("<TR bgcolor='#ECFAEB'>\n");
 					   Buf.append("<TD>USERNAME:</TD>\n");
 					  Buf.append("<TD>\n");
-						  Buf.append("<INPUT TYPE='text' NAME='UserName' Value=\""+Username+"\" SIZE='15' focused>\n");
+                          String safeUser = com.aditya.InputValidator.escapeHtml(Username);
+                          Buf.append("<INPUT TYPE='text' NAME='UserName' Value=\""+safeUser+"\" SIZE='15' focused>\n");
 					  Buf.append("</TD>\n");
 					Buf.append("</TR>\n");
 
